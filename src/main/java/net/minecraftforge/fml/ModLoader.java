@@ -48,6 +48,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -254,7 +255,8 @@ public class ModLoader
         statusConsumer.ifPresent(c->c.accept("Freezing data"));
         GameData.freezeData();
         NetworkRegistry.lock();
-        statusConsumer.ifPresent(c->c.accept(String.format("Mod loading complete - %d mods loaded", ModList.get().size())));
+        statusConsumer.ifPresent(c->c.accept(new MessageFormat("Mod loading complete - {0,number} mods loaded")
+                .format(new Object[] { ModList.get().size() })));
     }
 
     public List<ModLoadingWarning> getWarnings()

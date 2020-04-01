@@ -34,6 +34,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.text.MessageFormat;
 import java.util.List;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -198,18 +199,28 @@ class ClientVisualization implements EarlyProgressVisualization.Visualization {
     }
 
     private static final float[] memorycolour = new float[] { 0.0f, 0.0f, 0.0f};
+    private final MessageFormat memoryFormat = new MessageFormat("Memory Heap: {0,number,integer} / {1,number,integer} MB ({2,number,integer}%)  OffHeap: {3,number,integer} MB");
+    private final StringBuffer memoryBuffer = new StringBuffer(60);
 
     private void renderMemoryInfo() {
         final MemoryUsage heapusage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
         final MemoryUsage offheapusage = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage();
         final float pctmemory = (float) heapusage.getUsed() / heapusage.getMax();
-        String memory = String.format("Memory Heap: %d / %d MB (%.1f%%)  OffHeap: %d MB", heapusage.getUsed() >> 20, heapusage.getMax() >> 20, pctmemory * 100.0, offheapusage.getUsed() >> 20);
+
+        Object[] memoryFormatParams = {
+                heapusage.getUsed() >> 20,
+                heapusage.getMax() >> 20,
+                pctmemory * 100.0,
+                offheapusage.getUsed() >> 20
+        };
+        memoryBuffer.setLength(0);
+        memoryFormat.format(memoryFormatParams, memoryBuffer, null);
 
         final int i = hsvToRGB((1.0f - (float)Math.pow(pctmemory, 1.5f)) / 3f, 1.0f, 0.5f);
         memorycolour[2] = ((i) & 0xFF) / 255.0f;
         memorycolour[1] = ((i >> 8 ) & 0xFF) / 255.0f;
         memorycolour[0] = ((i >> 16 ) & 0xFF) / 255.0f;
-        renderMessage(memory, memorycolour, 1, 1.0f);
+        renderMessage(memoryBuffer.toString(), memorycolour, 1, 1.0f);
     }
 
     private void renderMessage(final String message, final float[] colour, int row, float alpha) {
