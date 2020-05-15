@@ -1,6 +1,45 @@
 --- a/net/minecraft/client/renderer/ItemRenderer.java
 +++ b/net/minecraft/client/renderer/ItemRenderer.java
-@@ -51,7 +51,7 @@
+@@ -2,24 +2,14 @@
+ 
+ import com.google.common.collect.Sets;
+ import com.mojang.blaze3d.platform.GlStateManager;
+-import java.util.List;
+-import java.util.Random;
+-import java.util.Set;
+-import javax.annotation.Nullable;
+ import net.minecraft.block.BlockState;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.entity.player.ClientPlayerEntity;
+ import net.minecraft.client.gui.FontRenderer;
+ import net.minecraft.client.renderer.color.ItemColors;
+-import net.minecraft.client.renderer.model.BakedQuad;
+-import net.minecraft.client.renderer.model.IBakedModel;
+-import net.minecraft.client.renderer.model.ItemCameraTransforms;
+-import net.minecraft.client.renderer.model.ItemTransformVec3f;
+-import net.minecraft.client.renderer.model.ModelManager;
+-import net.minecraft.client.renderer.model.ModelResourceLocation;
++import net.minecraft.client.renderer.model.*;
+ import net.minecraft.client.renderer.texture.AtlasTexture;
+ import net.minecraft.client.renderer.texture.TextureManager;
+-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
+ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+ import net.minecraft.crash.CrashReport;
+ import net.minecraft.crash.CrashReportCategory;
+@@ -40,6 +30,12 @@
+ import net.minecraftforge.api.distmarker.Dist;
+ import net.minecraftforge.api.distmarker.OnlyIn;
+ 
++import javax.annotation.Nullable;
++import java.text.NumberFormat;
++import java.util.List;
++import java.util.Random;
++import java.util.Set;
++
+ @OnlyIn(Dist.CLIENT)
+ public class ItemRenderer implements IResourceManagerReloadListener {
+    public static final ResourceLocation field_110798_h = new ResourceLocation("textures/misc/enchanted_item_glint.png");
+@@ -51,7 +47,7 @@
  
     public ItemRenderer(TextureManager p_i46552_1_, ModelManager p_i46552_2_, ItemColors p_i46552_3_) {
        this.field_175057_n = p_i46552_1_;
@@ -9,7 +48,7 @@
  
        for(Item item : Registry.field_212630_s) {
           if (!field_195411_c.contains(item)) {
-@@ -75,6 +75,10 @@
+@@ -75,6 +71,10 @@
     }
  
     private void func_191967_a(IBakedModel p_191967_1_, int p_191967_2_, ItemStack p_191967_3_) {
@@ -20,7 +59,7 @@
        Tessellator tessellator = Tessellator.func_178181_a();
        BufferBuilder bufferbuilder = tessellator.func_178180_c();
        bufferbuilder.func_181668_a(7, DefaultVertexFormats.field_176599_b);
-@@ -98,7 +102,7 @@
+@@ -98,7 +98,7 @@
           if (p_180454_2_.func_188618_c()) {
              GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
              GlStateManager.enableRescaleNormal();
@@ -29,7 +68,7 @@
           } else {
              this.func_191961_a(p_180454_2_, p_180454_1_);
              if (p_180454_1_.func_77962_s()) {
-@@ -164,7 +168,7 @@
+@@ -164,7 +164,7 @@
              k = k | -16777216;
           }
  
@@ -38,7 +77,7 @@
        }
  
     }
-@@ -225,11 +229,8 @@
+@@ -225,11 +225,8 @@
           GlStateManager.enableBlend();
           GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
           GlStateManager.pushMatrix();
@@ -52,7 +91,7 @@
  
           this.func_180454_a(p_184394_1_, p_184394_2_);
           GlStateManager.cullFace(GlStateManager.CullFace.BACK);
-@@ -260,7 +261,7 @@
+@@ -260,7 +257,7 @@
        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
        GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
        this.func_180452_a(p_191962_2_, p_191962_3_, p_191962_4_.func_177556_c());
@@ -61,7 +100,7 @@
        this.func_180454_a(p_191962_1_, p_191962_4_);
        GlStateManager.disableAlphaTest();
        GlStateManager.disableRescaleNormal();
-@@ -299,6 +300,7 @@
+@@ -299,6 +296,7 @@
              crashreportcategory.func_189529_a("Item Type", () -> {
                 return String.valueOf((Object)p_184391_2_.func_77973_b());
              });
@@ -69,7 +108,21 @@
              crashreportcategory.func_189529_a("Item Damage", () -> {
                 return String.valueOf(p_184391_2_.func_77952_i());
              });
-@@ -330,9 +332,12 @@
+@@ -319,10 +317,12 @@
+       this.func_180453_a(p_175030_1_, p_175030_2_, p_175030_3_, p_175030_4_, (String)null);
+    }
+ 
++   private final NumberFormat numberFormat = NumberFormat.getIntegerInstance();
++
+    public void func_180453_a(FontRenderer p_180453_1_, ItemStack p_180453_2_, int p_180453_3_, int p_180453_4_, @Nullable String p_180453_5_) {
+       if (!p_180453_2_.func_190926_b()) {
+          if (p_180453_2_.func_190916_E() != 1 || p_180453_5_ != null) {
+-            String s = p_180453_5_ == null ? String.valueOf(p_180453_2_.func_190916_E()) : p_180453_5_;
++            String s = p_180453_5_ == null ? numberFormat.format(p_180453_2_.func_190916_E()) : p_180453_5_;
+             GlStateManager.disableLighting();
+             GlStateManager.disableDepthTest();
+             GlStateManager.disableBlend();
+@@ -330,9 +330,12 @@
              GlStateManager.enableBlend();
              GlStateManager.enableLighting();
              GlStateManager.enableDepthTest();
@@ -83,7 +136,7 @@
              GlStateManager.disableLighting();
              GlStateManager.disableDepthTest();
              GlStateManager.disableTexture();
-@@ -340,11 +345,9 @@
+@@ -340,11 +343,9 @@
              GlStateManager.disableBlend();
              Tessellator tessellator = Tessellator.func_178181_a();
              BufferBuilder bufferbuilder = tessellator.func_178180_c();
@@ -98,7 +151,7 @@
              this.func_181565_a(bufferbuilder, p_180453_3_ + 2, p_180453_4_ + 13, 13, 2, 0, 0, 0, 255);
              this.func_181565_a(bufferbuilder, p_180453_3_ + 2, p_180453_4_ + 13, i, 1, j >> 16 & 255, j >> 8 & 255, j & 255, 255);
              GlStateManager.enableBlend();
-@@ -383,4 +386,9 @@
+@@ -383,4 +384,9 @@
     public void func_195410_a(IResourceManager p_195410_1_) {
        this.field_175059_m.func_178085_b();
     }
